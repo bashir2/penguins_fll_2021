@@ -8,3 +8,11 @@ def follow_line(tank, left_cs, right_cs, millies):
         subtract = left_cs.reflection() - right_cs.reflection() # subtracts color sensors
         multiply = subtract * SHARPNESS # multiplies the difference by 0.7
         tank.drive(SPEED, multiply) # follows the line 
+
+def gyro_straight(tank, gyro, millies, target):
+    tank.reset()
+    while tank.distance() < millies:
+        subtract = gyro.angle() - target  # subtracts color sensors
+        multiply = subtract * SHARPNESS # multiplies the difference by 0.7
+        tank.drive(SPEED, multiply) # follows the line
+
