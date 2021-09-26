@@ -1,3 +1,6 @@
+# This is where we keep all the shared blocks. Please only include functions
+# and constants in this file for now.
+
 SHARPNESS = 0.7
 SPEED = 300
 WHEEL_CIRCUMFERENCE = 180
