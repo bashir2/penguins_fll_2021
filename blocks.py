@@ -27,7 +27,7 @@ def stop_on_black(left_cs, right_cs):
             return False
 
         
-def perpendicular_line(tank, left_cs, right_cs, line_distance, left_wheel, right_wheel):
+def perpendicular_line(tank, left_cs, right_cs, line_distance):
     if line_distance >= 0:
         turn = 85
     else:
