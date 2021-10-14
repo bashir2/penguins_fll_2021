@@ -21,7 +21,7 @@ def gyro_straight(tank, gyro, millies, target):
         
         
 def stop_on_black(left_cs, right_cs):
-        if left_cs.reflection() <= 14:
+        if left_cs.reflection() <= 14 and right_cs.reflection() <= 14:
             return True
         else:
             return False
