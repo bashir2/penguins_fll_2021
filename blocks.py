@@ -20,6 +20,25 @@ def gyro_straight(tank, gyro, millies, target):
         tank.drive(SPEED, multiply) # follows the line
         
         
+        
+def gyro_angle( tank, gyro_sensor, left_wheel, right_wheel, angle):
+    gyro_sensor.reset_angle(0)
+    big = angle + 1
+    small = angle - 1
+    while gyro.angle() <= small or gyro.angle() >= big:
+        while gyro.angle() <= small or gyro.angle() >= big: 
+            if gyro_sensor.angle() <= small:
+                left_wheel.run(TURN_SPEED)
+                right_wheel.run(TURN_SPEED * -1)
+            else:
+                left_wheel.run(TURN_SPEED * -1)
+                right_wheel.run(TURN_SPEED)
+        tank.stop()
+        time.sleep(0.5)
+        #print(gyro.angle())
+        
+        
+        
 def stop_on_black(left_cs, right_cs):
         if left_cs.reflection() <= 14 and right_cs.reflection() <= 14:
             return True
