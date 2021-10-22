@@ -61,80 +61,17 @@ def perpendicular_line(tank, left_cs, right_cs, line_distance):
     
     
     
-    
-    
-    
-    
-    
-      # Definitions ////////////////////////////////////////////////////////////////////
+                    
+# Definitions ////////////////////////////////////////////////////////////////////
 TURN_SPEED  = 50
 
-#//////////////////////////////////////////////////////////////////////////////////////
-    #Give a degree to gyro_angle and it'll turn to match that degree
-def gyro_angle( tank, gyro_sensor, left_wheel, right_wheel, angle):
-    gyro_sensor.reset_angle(0)
-    big = angle + 1
-    small = angle - 1
-    while gyro.angle() <= small or gyro.angle() >= big:
-        while gyro.angle() <= small or gyro.angle() >= big: 
-            if gyro_sensor.angle() <= small:
-                left_wheel.run(TURN_SPEED)
-                right_wheel.run(TURN_SPEED * -1)
-            else:
-                left_wheel.run(TURN_SPEED * -1)
-                right_wheel.run(TURN_SPEED)
-        tank.stop()
-        time.sleep(0.5)
-        print(gyro.angle())
+
 def go_to_coordinate(tank, gyro_sensor, left_wheel, right_wheel, targetx, targety):
     # The assumption is that the robot is at (0,0) along x axis. 
-    targetx = 300
-    targety = 400
     slope = targety/targetx
     angle = math.atan(slope)
     angle_degrees = math.degrees(angle)
-    angle_degrees2 = (angle_degrees*-1)
-    print(angle_degrees2)
-    gyro_angle(tank, gyro_sensor, left_wheel, right_wheel, angle_degrees2)
+    gyro_angle(tank, gyro_sensor, left_wheel, right_wheel, angle_degrees * -1)
     length = math.sqrt(targetx**2 + targety**2)
-    print(length)
-    print(gyro.angle())
     tank.straight(length)
     tank.stop()
-
-
-# main program
-# Preparation work ########################
-# Create your objects here.
-ev3 = EV3Brick()
-
-# Write your program here.
-ev3.speaker.beep()
-
-# Initialize the motors.
-left_wheel = Motor(Port.B)
-
-right_wheel = Motor(Port.C)
-#the gyro sensor is plugged into port 1 and mesures clockwise 
-gyro = GyroSensor(Port.S1, Direction.CLOCKWISE) 
-
-# Initialize the drive base.
-tank = DriveBase(left_wheel, right_wheel, wheel_diameter=55.5, axle_track=104)
-
-# Go forward and backwards for one meter.
-#tank.straight(10)
-#ev3.speaker.beep()
-
-ultra_sensor = UltrasonicSensor(Port.S4)
-
-#tank.straight(-10)
-#ev3.speaker.beep()
-
-# Turn clockwise by 360 degrees and back again.
-#tank.turn(10)
-#ev3.speaker.beep()
-
-#tank.turn(-10)
-ev3.speaker.beep()
-
-go_to_coordinate(tank, gyro, left_wheel, right_wheel, 200, 100)
