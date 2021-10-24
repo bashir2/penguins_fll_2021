@@ -58,3 +58,13 @@ def perpendicular_line(tank, left_cs, right_cs, line_distance):
     while not stop_on_black(left_cs, right_cs):
         tank.drive(100, 0)
     tank.stop()
+
+def steering(tank, speed, sharpness, rotations):
+    tank.reset()
+    if speed < 0:
+        rotations = rotations * -1
+    big = rotations + 1
+    small = rotations - 1
+    while tank.distance() <= small or tank.distance() >= big:
+        tank.drive(speed, sharpness)
+    tank.stop()   
