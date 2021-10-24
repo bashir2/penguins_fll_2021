@@ -59,7 +59,7 @@ def perpendicular_line(tank, left_cs, right_cs, line_distance):
         tank.drive(100, 0)
     tank.stop()
 
-def steering(tank, speed, sharpness, rotations):
+def steering(tank, speed, sharpness, millies):
     tank.reset()
     if speed < 0:
         rotations = rotations * -1
