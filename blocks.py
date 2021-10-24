@@ -61,8 +61,6 @@ def perpendicular_line(tank, left_cs, right_cs, line_distance):
 
 def steering(tank, speed, sharpness, millies):
     tank.reset()
-    if speed < 0:
-        rotations = rotations * -1
     big = millies
     small = -1 * millies
     while tank.distance() >= small and tank.distance() <= big:
