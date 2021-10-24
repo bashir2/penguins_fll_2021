@@ -64,7 +64,7 @@ def steering(tank, speed, sharpness, millies):
     if speed < 0:
         rotations = rotations * -1
     big = rotations + 1
-    small = rotations - 1
+    small = -1 * millies
     while tank.distance() <= small or tank.distance() >= big:
         tank.drive(speed, sharpness)
     tank.stop()   
