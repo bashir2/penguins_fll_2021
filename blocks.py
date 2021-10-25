@@ -110,6 +110,18 @@ def perpendicular_line(tank, left_cs, right_cs, line_distance, left_wheel, right
         tank.drive(100, 0)
     tank.stop()
 
+
+def go_to_coordinate(tank, gyro_sensor, left_wheel, right_wheel, targetx, targety):
+    # The assumption is that the robot is at (0,0) along x axis. 
+    slope = targety/targetx
+    angle = math.atan(slope)
+    angle_degrees = math.degrees(angle)
+    gyro_angle(tank, gyro_sensor, left_wheel, right_wheel, angle_degrees * -1)
+    length = math.sqrt(targetx**2 + targety**2)
+    tank.straight(length)
+    tank.stop()
+
+
 def steering(tank, speed, sharpness, millies):
     tank.reset()
     big = millies
@@ -118,6 +130,7 @@ def steering(tank, speed, sharpness, millies):
         tank.drive(speed, sharpness)
     tank.stop()   
 
+    
 def steering_angle(tank, gyro, speed, sharpness, angle):
     big = angle + 1
     small = angle - 1
