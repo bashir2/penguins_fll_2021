@@ -24,6 +24,7 @@ class Robot():
         self.tank = DriveBase(self.left_wheel, self.right_wheel, 50, 110)
         self.gyro = GyroSensor(Port.S1) 
         self.forklift = Motor(Port.D)
+        self.cs_threshold = self.read_calibrate()
 
     def follow_line(self, millies):
         ''' Follows the line for a certain distance
@@ -140,3 +141,9 @@ class Robot():
             self.tank.drive(speed, sharpness)
         self.tank.stop()
     
+    
+    def read_calibrate(self):
+        file_handler = open("Calibration.txt", "r")
+        int_value = int(file_handler.read())
+
+        return int_value
