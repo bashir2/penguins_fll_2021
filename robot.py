@@ -1,4 +1,5 @@
 import time
+import math
 
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
@@ -25,7 +26,7 @@ class Robot():
         self.gyro = GyroSensor(Port.S1) 
         self.forklift = Motor(Port.D)
 
-    def follow_line(self, millies):
+    def follow_line(self, millies, speed=100):
         ''' Follows the line for a certain distance
     
         Args:
@@ -35,9 +36,18 @@ class Robot():
         while self.tank.distance() < millies:
             subtract = self.left_cs.reflection() - self.right_cs.reflection() 
             multiply = subtract * SHARPNESS_COLOR
-            self.tank.drive(SPEED, multiply) 
+            self.tank.drive(speed, multiply) 
+        self.brake()
+
+    def brake(self):
+        ''' brakes the robot
+        '''
+        # The next call sometimes fails on one motor.
+        #self.tank.stop(Stop.BRAKE)
+        # So trying the next approach instead.
         self.tank.stop()
-    
+        self.right_wheel.brake()
+        self.left_wheel.brake()
 
     def gyro_straight(self, target):
         ''' Goes forward until it reaches black trying to keep gyro angle straight.
@@ -45,16 +55,14 @@ class Robot():
         Args:
             target: The amount of going forward in
         '''
-        self.tank.settings(200, 100, 30, 30)
         while not self.stop_on_black(): 
             subtract = self.gyro.angle() - target  
             multiply = subtract * (SHARPNESS * -1) 
             self.tank.drive(SPEED, multiply)
-            print(self.gyro.angle())
-        self.tank.stop() 
+        self.brake() 
     
     
-    def gyro_straight_distance(self, millies, target):
+    def gyro_straight_distance(self, millies, target_angle, speed=100):
         ''' Goes forward for a certain distance trying to keep gyro angle straight. 
     
         Args: 
@@ -63,14 +71,13 @@ class Robot():
         self.tank.settings(200, 100, 30, 30)
         self.tank.reset()
         while self.tank.distance() < millies:
-            subtract = self.gyro.angle() - target 
+            subtract = self.gyro.angle() - target_angle 
             multiply = subtract * (SHARPNESS * -1) 
-            self.tank.drive(SPEED, multiply)
-            print(self.gyro.angle())
-        self.tank.stop()
+            self.tank.drive(speed, multiply)
+        self.brake()
     
     
-    def arm_movement(self, speed, millies):
+    def arm_movement(self, speed=200, millies=0):
         ''' Makes the robot arm go up/down for a certain amount of millimeters
     
         Args: 
@@ -79,12 +86,14 @@ class Robot():
         ''' 
         degrees = millies * 10  
         self.forklift.run_angle(speed, degrees)
+        self.brake()
     
     
     def gyro_angle(self, angle):
-        self.gyro.reset_angle(0)
+        self.brake()
         big = angle + 1
         small = angle - 1
+        print('gyro_angle begin: ' + str(self.gyro.angle()))
         while self.gyro.angle() <= small or self.gyro.angle() >= big:
             while self.gyro.angle() <= small or self.gyro.angle() >= big: 
                 if self.gyro.angle() <= small:
@@ -93,15 +102,19 @@ class Robot():
                 else:
                     self.left_wheel.run(TURN_SPEED * -1)
                     self.right_wheel.run(TURN_SPEED)
-            self.tank.stop()
-            time.sleep(0.5)
-            print(self.gyro.angle())
-    
-    def stop_on_black(self):
+            self.brake()
+            time.sleep(0.4)    
+        self.brake()
+        print('gyro_angle end: ' + str(self.gyro.angle()))
+
+
+    def stop_on_black(self, ignore_left=False, ignore_right=False):
         ''' Used so the robot can identify black
         '''
-        if self.left_cs.reflection() <= 9 and self.right_cs.reflection() <= 9:
+        if (self.left_cs.reflection() <= 9 or ignore_left) and (
+            self.right_cs.reflection() <= 9 or ignore_right):
             return True
+            self.brake()
         else:
             return False
     
@@ -123,20 +136,58 @@ class Robot():
         self.tank.turn(turn * -1)
         while not stop_on_black(left_cs, right_cs):
             self.tank.drive(100, 0)
-        self.tank.stop()
+        self.brake()
     
-    def steering(self, speed, sharpness, millies):
+
+    def steering(self, speed, sharpness, distance):
+        ''' Makes the robot able to turn and go forward
+
+        Args:
+
+        '''
         self.tank.reset()
-        big = millies
-        small = -1 * millies
+        big = distance
+        small = -1 * distance
         while self.tank.distance() >= small and self.tank.distance() <= big:
             self.tank.drive(speed, sharpness)
-        self.tank.stop()   
+        self.brake()   
     
+
     def steering_angle(self, speed, sharpness, angle):
+        ''' Steers the robot with a certain angle and speed
+
+        Args:
+            speed: the speed of the steering
+            sharpness: the sharpness or urgency
+            angle: the angle the robot is aiming to stop at
+        '''
         big = angle + 1
         small = angle - 1
         while self.gyro.angle() <= small or self.gyro.angle() >= big:
             self.tank.drive(speed, sharpness)
-        self.tank.stop()
-    
+        self.brake()
+
+
+    def straight_distance(self, distance, speed=150):
+        ''' Goes straight for a certain distance
+
+        Args:
+            speed: the speed of the robot
+            distance: the distance the robot should go
+                straight
+        '''
+        self.tank.reset()
+        if distance < 0:
+            speed = speed * -1 
+        while abs(self.tank.distance()) < abs(distance):
+            self.tank.drive(speed, 0)
+        self.brake()
+
+
+    def straight_to_black(self, speed, ignore_left=False, ignore_right=False):
+        ''' Goes straight until it reaches black
+        '''
+        while not self.stop_on_black(ignore_left, ignore_right):
+            self.tank.drive(speed, 0)
+        self.brake()
+            
