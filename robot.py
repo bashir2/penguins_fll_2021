@@ -167,6 +167,36 @@ class Robot():
             self.tank.drive(speed, sharpness)
         self.brake()
 
+        def steering_angle(self, speed, sharpness, angle):
+        ''' Steers the robot forward with `speed` and `sharpness` until a certain angle
+
+        Preconditions:
+            sharpness: should always be positive 
+
+        Args:
+            speed: the speed of the steering
+            sharpness: the sharpness or urgency
+            angle: the angle the robot is aiming to stop at
+        '''
+        print("Beginning of steering_angle " + str(self.gyro.angle()))
+        big = angle + 1
+        small = angle - 1
+        temp_sharp = sharpness
+        if self.gyro.angle() > angle:  # Should turn left
+            temp_sharp = sharpness * -1
+            while self.gyro.angle() <= small or self.gyro.angle() >= big:
+                if self.gyro.angle() >= big:
+                    self.tank.drive(speed, temp_sharp)
+                elif self.gyro.angle() <= small:
+                    self.tank.drive(speed * -1, temp_sharp * -1)
+        elif self.gyro.angle() < angle:  # Should turn right
+            while self.gyro.angle() <= small or self.gyro.angle() >= big:
+                if self.gyro.angle() <= small:
+                    self.tank.drive(speed, temp_sharp)
+                elif self.gyro.angle() >= big:
+                    self.tank.drive(speed * -1, temp_sharp * -1)
+        self.brake()
+        print("End of steering_angle " + str(self.gyro.angle()))
 
     def straight_distance(self, distance, speed=150):
         ''' Goes straight for a certain distance
