@@ -137,3 +137,29 @@ def steering_angle(tank, gyro, speed, sharpness, angle):
     while gyro.angle() <= small or gyro.angle() >= big:
         tank.drive(speed, sharpness)
     tank.stop()
+    
+def check_cargo(my_robot):
+    cargo1 = 0
+    cargo2 = 0
+    cargo3 = 0
+    cargo1 = my_robot.ultra_sound.distance(silent=False)
+    my_robot.tank.straight(100)
+    cargo2 = my_robot.ultra_sound.distance(silent=False)
+    my_robot.tank.straight(100)
+    cargo3 = my_robot.ultra_sound.distance(silent=False)
+    print('distance of the first cargo: ' + str(cargo1))
+    print('distance of the second cargo: ' + str(cargo2))
+    print('distance of the third cargo: ' + str(cargo3))
+    if cargo1 < cargo2 and cargo1 < cargo3:
+        # first is smallest
+        my_robot.tank.straight(-150)
+        my_robot.steering_angle(10, 100, 80)
+    elif cargo2 < cargo1 and cargo2 < cargo3:
+        # second is smallest
+        my_robot.tank.straight(-75)
+        my_robot.steering_angle(10, 100, 80)
+    else:
+        # third is smallest
+        my_robot.tank.straight(50)
+        my_robot.steering_angle(10, 100, 80)
+
