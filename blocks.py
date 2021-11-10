@@ -162,4 +162,22 @@ def check_cargo(my_robot):
         # third is smallest
         my_robot.tank.straight(50)
         my_robot.steering_angle(10, 100, 80)
-
+        
+        
+def train(r):
+    r.gyro_angle(-30)
+    r.straight_to_black(-80)
+    r.tank.straight(105)
+    r.gyro_angle(60)
+    r.tank.straight(-100)
+    r.follow_line(150)
+    r.straight_to_black(70)
+    r.gyro.reset_angle(60)
+    # Reset angle and fix x and y position
+    r.tank.straight(-60)
+    r.steering_angle(speed=-40, sharpness=40, angle=-90)
+    time.sleep(0.5)
+    r.tank.straight(-40)
+    r.lift.run_target(500, 630)
+    # Goes to train from fixed point and puts down the cargo boxes
+    r.tank.straight(80)
