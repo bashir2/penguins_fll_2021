@@ -91,22 +91,30 @@ class Robot():
     
     
     def gyro_angle(self, angle):
-        self.brake()
-        big = angle + 1
-        small = angle - 1
-        print('gyro_angle begin: ' + str(self.gyro.angle()))
-        while self.gyro.angle() <= small or self.gyro.angle() >= big:
-            while self.gyro.angle() <= small or self.gyro.angle() >= big: 
-                if self.gyro.angle() <= small:
-                    self.left_wheel.run(TURN_SPEED)
-                    self.right_wheel.run(TURN_SPEED * -1)
-                else:
-                    self.left_wheel.run(TURN_SPEED * -1)
-                    self.right_wheel.run(TURN_SPEED)
-            self.brake()
-            time.sleep(0.4)    
-        self.brake()
-        print('gyro_angle end: ' + str(self.gyro.angle()))
+         ''' Turns to desired angle
+  
+         Args: 
+         angle: the angle you want the robot to turn
+         '''
+         self.gyro.reset_angle(0)
+         big = angle + 1
+         small = angle - 1
+         print('gyro_angle begin: ' + str(self.gyro.angle()))
+         self.tank.turn(angle - 1)
+         self.brake()
+         #you need to brake here so that the motor can run
+         while self.gyro.angle() <= small or self.gyro.angle() >= big:
+             while self.gyro.angle() <= small or self.gyro.angle() >= big: 
+                 if self.gyro.angle() <= small:
+                     self.left_wheel.run(TURN_SPEED)
+                     self.right_wheel.run(TURN_SPEED * -1)
+                 else:
+                     self.left_wheel.run(TURN_SPEED * -1)
+                     self.right_wheel.run(TURN_SPEED)
+             self.tank.stop()
+             time.sleep(0.5)
+             print('gyro_angle end: ' + str(self.gyro.angle()))
+    
 
 
     def stop_on_black(self, ignore_left=False, ignore_right=False):
