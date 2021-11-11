@@ -26,6 +26,7 @@ if __name__ == "__main__":
       r.ev3.screen.draw_text(0, 90, right_wheel_string)
       r.ev3.screen.draw_text(85, 0, ultra_sonic_string)
       r.ev3.screen.draw_text(100, 30, gyro_string)
+      r.ev3.screen.draw_text(100, 30, curr_value_string)
       time.sleep(0.2)
       r.ev3.screen.clear()
       if(r.ev3.buttons.pressed() == [Button.CENTER]):
