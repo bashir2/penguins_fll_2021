@@ -1,0 +1,8 @@
+my_robot.tank.straight(200)
+my_robot.follow_line(150)
+my_robot.tank.turn(-90)
+my_robot.tank.turn(90)
+my_robot.follow_line(300)
+my_robot.perpendicular_line(-100)
+my_robot.tank.straight(-100)
+my_robot.tank.turn(90)
