@@ -5,8 +5,6 @@ from robot import Robot
 from pybricks.parameters import Button
 from pybricks.media.ev3dev import Font
 
-#def calibration(ev3, left_cs, right_cs, right_wheel, left_wheel, ultra, gyro): #add any extra sensor/motors, I can not as I would get an error
-
 if __name__ == "__main__":
     r = Robot()
 
@@ -19,13 +17,13 @@ if __name__ == "__main__":
         right_wheel_string = "Right Wheel:", str(r.right_wheel.angle())
         ultra_string = "US:", str(r.ultra.distance(False))
         gyro_string = "Gyro:", str(r.gyro.angle())
-        curr_value_string = "CV", str(r.cs_threshold)
+        curr_value_string = "CV(LR): {} {}".format(r.left_cs_thresh, r.right_cs_thresh)
         r.ev3.screen.draw_text(0, 0, left_cs_string)
         r.ev3.screen.draw_text(0, 20, right_cs_string)
         r.ev3.screen.draw_text(0, 40, curr_value_string)
         r.ev3.screen.draw_text(0, 60, left_wheel_string)
         r.ev3.screen.draw_text(0, 80, right_wheel_string)
-        r.ev3.screen.draw_text(85, 0, ultra_string)
+        r.ev3.screen.draw_text(105, 0, ultra_string)
         r.ev3.screen.draw_text(100, 20, gyro_string)
 
         time.sleep(0.2)
@@ -34,9 +32,9 @@ if __name__ == "__main__":
             button_pressed = True
         else:
             button_pressed = False
-    val = max(r.left_cs.reflection(), r.right_cs.reflection()) + 2        
-    str_value = str(val)
+    left_val = r.left_cs.reflection() + 1
+    right_val = r.right_cs.reflection() + 1
+    str_value = '{}\n{}'.format(left_val, right_val) 
     file_handler = open("Calibration.txt", "w")
     file_handler.write(str_value)
     file_handler.close()
-        
