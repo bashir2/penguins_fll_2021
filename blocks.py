@@ -1,183 +1,176 @@
 # This is where we keep all the shared blocks. Please only include functions
 # and constants in this file for now.
+import robot
 import time
 
-
-SHARPNESS = 3
-SHARPNESS_COLOR = 0.7 
-SPEED = 100
-WHEEL_CIRCUMFERENCE = 180
-TURN_SPEED = 45
-
-
-def follow_line(tank, left_cs, right_cs, millies):
-    ''' Follows the line for a certain distance
-
-    Args:
-        millies: the amount of millilmeters the robot should travel
+def go_to_bay(r, bay_num, init_distance, is_blue=False):
     '''
-    tank.reset()
-    while tank.distance() < millies:
-        subtract = left_cs.reflection() - right_cs.reflection() 
-        multiply = subtract * SHARPNESS_COLOR
-        tank.drive(SPEED, multiply) 
-    tank.stop()
-
-
-def gyro_straight(tank, gyro, left_cs, right_cs, target):
-    ''' Goes forward until it reaches black trying to keep gyro angle straight.
-
-    Args:
-        target: The amount of going forward in
-    '''
-    tank.settings(200, 100, 30, 30)
-    while not stop_on_black(left_cs, right_cs): 
-        subtract = gyro.angle() - target  
-        multiply = subtract * (SHARPNESS * -1) 
-        tank.drive(SPEED, multiply)
-        print(gyro.angle())
-    tank.stop() 
-
-
-def gyro_straight_distance(tank, gyro, millies, target):
-    ''' Goes forward for a certain distance trying to keep gyro angle straight. 
-
-    Args: 
-        millies: how much millimeters the robot should travel
-    '''
-    tank.settings(200, 100, 30, 30)
-    tank.reset()
-    while tank.distance() < millies:
-        subtract = gyro.angle() - target 
-        multiply = subtract * (SHARPNESS * -1) 
-        tank.drive(SPEED, multiply)
-        print(gyro.angle())
-    tank.stop()
-
-
-def arm_movement(forklift, speed, millies):
-    ''' Makes the robot arm go up/down for a certain amount of millimeters
-
-    Args: 
-        millies: the amount of millimeters the arm goes up/down  
-        speed: the amount of speed the arm travels with 
-    ''' 
-    degrees = millies * 10  
-    forklift.run_angle(speed, degrees)
-
-
-def gyro_angle( tank, gyro, left_wheel, right_wheel, angle):
-    gyro.reset_angle(0)
-    big = angle + 1
-    small = angle - 1
-    while gyro.angle() <= small or gyro.angle() >= big:
-        while gyro.angle() <= small or gyro.angle() >= big: 
-            if gyro.angle() <= small:
-                left_wheel.run(TURN_SPEED)
-                right_wheel.run(TURN_SPEED * -1)
-            else:
-                left_wheel.run(TURN_SPEED * -1)
-                right_wheel.run(TURN_SPEED)
-        tank.stop()
-        time.sleep(0.5)
-        print(gyro.angle())
-
-def stop_on_black(left_cs, right_cs):
-    ''' Used so the robot can identify black
-    '''
-    if left_cs.reflection() <= 9 and right_cs.reflection() <= 9:
-        return True
-    else:
-        return False
-
-
-def perpendicular_line(tank, left_cs, right_cs, line_distance, left_wheel, right_wheel):
-    ''' The robot goes to an intersection of lines to create a reference point
-
-    Args:
-        line_distance: the distance of your end-point 
-            on the line from the intersection of the two lines
-    '''
-    if line_distance >= 0:
-        turn = 85
-    else:
-        turn = -85
-    tank.settings(200, 100, 100, 100)
-    tank.turn(turn)
-    tank.straight(abs(line_distance))
-    tank.turn(turn * -1)
-    while not stop_on_black(left_cs, right_cs):
-        tank.drive(100, 0)
-    tank.stop()
-
-
-def go_to_coordinate(tank, gyro_sensor, left_wheel, right_wheel, targetx, targety):
-    # The assumption is that the robot is at (0,0) along x axis. 
-    slope = targety/targetx
-    angle = math.atan(slope)
-    angle_degrees = math.degrees(angle)
-    gyro_angle(tank, gyro_sensor, left_wheel, right_wheel, angle_degrees * -1)
-    length = math.sqrt(targetx**2 + targety**2)
-    tank.straight(length)
-    tank.stop()
-
-
-def steering(tank, speed, sharpness, millies):
-    tank.reset()
-    big = millies
-    small = -1 * millies
-    while tank.distance() >= small and tank.distance() <= big:
-        tank.drive(speed, sharpness)
-    tank.stop()   
-
+    Preconditions: 
+        Arm at height: 120
     
-def steering_angle(tank, gyro, speed, sharpness, angle):
-    big = angle + 1
-    small = angle - 1
-    while gyro.angle() <= small or gyro.angle() >= big:
-        tank.drive(speed, sharpness)
-    tank.stop()
+    Postconditions:
+        Arm at height: 85
+    '''
+    print('go_to_bay {}'.format(bay_num))
+    if bay_num == 1:
+        r.straight_distance(14 - init_distance) 
+        r.gyro_angle(90)
+    elif bay_num == 2:
+        r.straight_distance(130 - init_distance)
+        r.gyro_angle(90)
+    elif bay_num == 3:
+        r.straight_distance(169 - init_distance)
+        r.gyro_angle(90) 
+    else:
+        print('ERROR bay_num should be in [1,3] got {}'.format(bay_num))
+    d = 0
+    forward = 0
+    if is_blue:
+        d = 80
+        forward = 25
+    r.straight_distance(speed=80, distance=-80 + d)
+    r.arm_movement(speed=400, millies=80)
+    r.straight_distance(92 - forward) # init value = 86
+    r.arm_movement(speed=-400, millies=45)
+    r.straight_distance(distance=-10, speed=100)
+    return bay_num
+
+def check_cargo(r):
+    '''
+    Preconditions: 
+        Arm at height: 190 (3 holes)
     
-def check_cargo(my_robot):
+    Postconditions:
+        Arm at height: 120
+    '''
     cargo1 = 0
     cargo2 = 0
     cargo3 = 0
-    cargo1 = my_robot.ultra_sound.distance(silent=False)
-    my_robot.tank.straight(100)
-    cargo2 = my_robot.ultra_sound.distance(silent=False)
-    my_robot.tank.straight(100)
-    cargo3 = my_robot.ultra_sound.distance(silent=False)
+    cargo1 = r.ultra.distance(silent=False)
+    r.gyro_straight_distance(distance=100, target_angle=0)
+    cargo2 = r.ultra.distance(silent=False)
+    r.gyro_straight_distance(distance=100, target_angle=0)
+    cargo3 = r.ultra.distance(silent=False)
     print('distance of the first cargo: ' + str(cargo1))
     print('distance of the second cargo: ' + str(cargo2))
     print('distance of the third cargo: ' + str(cargo3))
+    # does train track
+    r.straight_distance(speed=90, distance=17)
+    r.arm_movement(speed=400, millies=127)  # arm at height: 63
+    r.straight_distance(speed=90, distance=-26)
+    r.arm_movement(speed=-400, millies=57, wait=False)  # arm at height: 120
+    # At this point we are 144 mm from reference line
+
     if cargo1 < cargo2 and cargo1 < cargo3:
-        # first is smallest
-        my_robot.tank.straight(-150)
-        my_robot.steering_angle(10, 100, 80)
+        green_loc = 1
+        if cargo2 < cargo3:
+            blue_loc = 3
+        else:
+            blue_loc = 2
     elif cargo2 < cargo1 and cargo2 < cargo3:
-        # second is smallest
-        my_robot.tank.straight(-75)
-        my_robot.steering_angle(10, 100, 80)
+        green_loc = 2
+        if cargo3 < cargo1:
+            blue_loc = 1
+        else:
+            blue_loc = 3
     else:
-        # third is smallest
-        my_robot.tank.straight(50)
-        my_robot.steering_angle(10, 100, 80)
-        
-        
+        green_loc = 3
+        if cargo1 < cargo2:
+            blue_loc = 2
+        else:
+            blue_loc = 1
+    go_to_bay(r, green_loc, init_distance=139)  # now arm at height 85
+    cargo_connect(r, green_loc)
+    return blue_loc
+
+
+def cargo_connect(r, green_loc):
+    '''
+    Preconditions: 
+        Arm at height: 85
+    
+    Postconditions:
+        Arm at height: 120
+    '''
+    if green_loc == 1:
+        r.gyro_angle(175)
+        r.straight_to_black(speed=-80)
+    elif green_loc == 2:
+        r.gyro_angle(175)
+        r.straight_to_black()
+    else:
+        r.steering_angle(speed=-100, sharpness=20, angle=48)
+        r.steering_angle(speed=100, sharpness=66, angle=175)
+        r.straight_to_black(speed=100)
+        r.gyro_angle(175)
+    r.straight_distance(100)
+    r.arm_movement(speed=400, millies=56)
+    r.straight_to_black(speed=-100)
+    # move arm to height 120
+    r.arm_movement(speed=-400, millies=91)
+
+
+def blue_circle(r, bay_num):
+    '''
+    Preconditions: 
+        Arm at height: 85
+    
+    Postconditions:
+        Arm at height: 30
+    '''
+    if bay_num == 1:
+        r.steering_angle(speed=-150, sharpness=20, angle=120)
+    elif bay_num == 2:
+        r.straight_distance(-230)
+    else:
+        r.steering_angle(speed=-150, sharpness=20, angle=60)
+    r.gyro_angle(angle=260, speed=100)
+    r.straight_distance(120)
+    r.arm_movement(speed=200, millies=55)
+    r.straight_distance(-200)
+
+
+def pick_blue(r, blue_loc):
+    '''
+    Preconditions: 
+        Arm at height: 120
+    
+    Postconditions:
+        Arm at height: 30
+    '''
+    bay_num = go_to_bay(r, blue_loc, init_distance=0, is_blue=True)
+    # now arm is at height 85
+    blue_circle(r, bay_num)
+
+
 def train(r):
-    r.gyro_angle(-30)
-    r.straight_to_black(-80)
-    r.tank.straight(105)
-    r.gyro_angle(60)
-    r.tank.straight(-100)
-    r.follow_line(150)
-    r.straight_to_black(70)
-    r.gyro.reset_angle(60)
-    # Reset angle and fix x and y position
-    r.tank.straight(-60)
-    r.steering_angle(speed=-40, sharpness=40, angle=-90)
+    '''
+    Preconditions: 
+        Arm at height: 30
+    
+    Postconditions:
+        Arm at height: 190
+    '''
+    print('train started')
+    r.arm_movement(speed=-500, millies=160, wait=False)
+    # now arm is at height 190  
+    r.gyro_angle(240)
+    r.straight_to_black(speed=80)
+    r.straight_distance(140) # init value = 165
+    r.gyro_angle(330)
+    r.straight_distance(-100)
+    r.follow_line(distance=150, speed=40)
+    r.gyro.reset_angle(-30)
+    # fix the angle
+    r.straight_to_black(speed=70)
+    # At perpendicular line
+    r.straight_distance(85)
+    r.straight_distance(-85)
+    # does helicopter
+    r.straight_distance(-60)
+    r.steering_angle(speed=-40, sharpness=50, angle=-170)
     time.sleep(0.5)
-    r.tank.straight(-40)
-    r.lift.run_target(500, 630)
+    r.straight_distance(-86)
+    r.arm_movement(speed=400, millies=63, is_back=True)
     # Goes to train from fixed point and puts down the cargo boxes
-    r.tank.straight(80)
+    r.straight_distance(80)
