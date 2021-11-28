@@ -25,10 +25,12 @@ class Robot():
         self.gyro = GyroSensor(Port.S1) 
         self.forklift = Motor(Port.D)
         self.back_forklift = Motor(Port.A)
-        self.cs_threshold = self.read_calibrate()
+        self.left_cs_thresh, self.right_cs_thresh = self.read_calibrate()
+        print('Color sensor thresholds are left: {} right: {}'.format(
+            self.left_cs_thresh, self.right_cs_thresh))
         self.ultra = UltrasonicSensor(Port.S4)
 
-    def follow_line(self, distance, speed=100, sharpness_color=0.5):
+    def follow_line(self, distance, speed=100, sharpness_color=0.4):
         ''' Follows the line for a certain distance
     
         Args:
@@ -41,10 +43,12 @@ class Robot():
             self.tank.drive(speed, multiply) 
         self.brake()
 
+
     def read_calibrate(self):
         file_handler = open("Calibration.txt", "r") # reads the value
-        int_value = int(file_handler.read())
-        return int_value
+        left_value = int(file_handler.readline())
+        right_value = int(file_handler.readline())
+        return left_value, right_value
 
     def brake(self):
         ''' brakes the robot
@@ -70,7 +74,7 @@ class Robot():
         self.brake() 
     
     
-    def gyro_straight_distance(self, distance, target_angle, speed=100):
+    def gyro_straight_distance(self, distance, target_angle, speed=100, sharpness=SHARPNESS):
         ''' Goes forward for a certain distance trying to keep gyro angle straight. 
     
         Args: 
@@ -78,15 +82,15 @@ class Robot():
         '''
         self.tank.settings(200, 100, 30, 30)
         self.tank.reset()
-        while self.tank.distance() < distance:
+        while abs(self.tank.distance()) < distance:
             subtract = self.gyro.angle() - target_angle 
-            multiply = subtract * (SHARPNESS * -1) 
+            multiply = subtract * (sharpness * -1) 
             self.tank.drive(speed, multiply)
-            #print(self.gyro.angle())
+            # print(self.gyro.angle())
         self.brake()
     
     
-    def arm_movement(self, speed=200, millies=0, is_back=False):
+    def arm_movement(self, speed=200, millies=0, is_back=False, wait=True):
         ''' Makes the robot arm go up/down for a certain amount of millimeters
     
         Args: 
@@ -98,7 +102,7 @@ class Robot():
         if is_back:
             f = self.back_forklift
             degrees *= -1  
-        f.run_angle(speed, degrees)
+        f.run_angle(speed, degrees, wait=wait)
         self.brake()
     
     
@@ -132,8 +136,8 @@ class Robot():
     def stop_on_black(self, ignore_left=False, ignore_right=False):
         ''' Used so the robot can identify black
         '''
-        if (self.left_cs.reflection() <= self.cs_threshold or ignore_left) and (
-            self.right_cs.reflection() <= self.cs_threshold or ignore_right):
+        if (self.left_cs.reflection() <= self.left_cs_thresh or ignore_left) and (
+            self.right_cs.reflection() <= self.right_cs_thresh or ignore_right):
             self.brake()
             return True
         else:
@@ -205,6 +209,7 @@ class Robot():
                 elif self.gyro.angle() >= big:
                     self.tank.drive(speed * -1, temp_sharp * -1)
         self.brake()
+        time.sleep(0.3)
         print("End of steering_angle " + str(self.gyro.angle()))
 
 
