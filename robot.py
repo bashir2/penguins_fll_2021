@@ -21,7 +21,7 @@ class Robot():
         self.right_wheel = Motor(Port.C)
         self.left_cs = ColorSensor(Port.S2)
         self.right_cs = ColorSensor(Port.S3)
-        self.tank = DriveBase(self.left_wheel, self.right_wheel, 50, 110)
+        self.tank = DriveBase(self.left_wheel, self.right_wheel, 52, 110)
         self.gyro = GyroSensor(Port.S1) 
         self.forklift = Motor(Port.D)
         self.back_forklift = Motor(Port.A)
@@ -112,13 +112,13 @@ class Robot():
         angle: the angle you want the robot to turn
         '''
         self.brake()
+        big = angle + 2
+        small = angle - 2
         self.tank.settings(speed, speed, speed, speed)
-        big = angle + 1
-        small = angle - 1
+        print('Current angle= {} target= {}'.format(self.gyro.angle, angle))
         self.tank.turn(angle - self.gyro.angle())
         self.brake()
         # you need to brake here so that the motor can run
-        print(self.gyro.angle())
         while self.gyro.angle() <= small or self.gyro.angle() >= big:
             while self.gyro.angle() <= small or self.gyro.angle() >= big: 
                 if self.gyro.angle() <= small:
@@ -213,7 +213,7 @@ class Robot():
         print("End of steering_angle " + str(self.gyro.angle()))
 
 
-    def straight_distance(self, distance, speed=150): 
+    def straight_distance(self, distance, speed=200): 
         ''' Goes straight for a certain distance
 
         Args:
