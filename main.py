@@ -27,6 +27,8 @@ import blocks
 
 blocks.gyro_straight(tank, gyro, 600, 0)
 
+blocks.follow_line(tank, left_cs, right_cs, 100)
+
 #import run_selected
 
 #tank.straight(blocks.WHEEL_CIRCUMFERENCE * 4)
